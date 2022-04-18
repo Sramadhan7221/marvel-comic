@@ -1,6 +1,6 @@
 <template>
   <div class="hero">
-    <img src="../assets/imgs/comicHero.jpg" alt="" />
+    <img src="~/assets/imgs/comicHero.jpg" alt="" />
     <div class="text-container">
       <div class="text">
         <span class="mini-heading">Now Stremaing</span>
