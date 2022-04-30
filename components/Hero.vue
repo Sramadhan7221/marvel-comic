@@ -3,9 +3,9 @@
     <img src="~/assets/imgs/comicHero.jpg" alt="" />
     <div class="text-container">
       <div class="text">
-        <span class="mini-heading">Now Stremaing</span>
-        <h1><span>Now</span> Streaming</h1>
-        <a href="#movie-grid" class="button">View Movies</a>
+        <span class="mini-heading">Read Now</span>
+        <h1><span>On going</span> Comic</h1>
+        <a href="#comic-grid" class="button">View Comics</a>
       </div>
     </div>
   </div>
