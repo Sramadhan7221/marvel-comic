@@ -5,7 +5,7 @@
       <div class="text">
         <span class="mini-heading">Read Now</span>
         <h1><span>On going</span> Comic</h1>
-        <a href="#comic-grid" class="button">View Comics</a>
+        <!-- <a href="#comic-grid" class="button">This Month Comics</a> -->
       </div>
     </div>
   </div>

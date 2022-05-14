@@ -3,12 +3,34 @@
     <!-- Hero -->
     <Hero />
     <!-- Comic -->
-    <div class="container comics">
+    <form class="formSearch" v-on:submit.prevent="cari">
+      <div class="col">
+        <input
+          class="form-control me-2"
+          type="search"
+          placeholder="Search"
+          v-model.lazy="search"
+        />
+        <button v-show="search !== ''" class="button" type="submit">
+          Search
+        </button>
+      </div>
+      <pagePagination
+        :totalPages="5"
+        :perPage="20"
+        :currentPage="currentPage"
+        @pagechanged="onPageChange"
+      />
+    </form>
+    <div v-if="loading" class="loading">
+      <img src="~/assets/imgs/loding.gif" class="img" alt="" />
+    </div>
+    <div v-else class="container comics">
       <div id="comic-grid" class="comics-grid">
-        <div v-for="(comic, index) in comics" :key="index" class="comic" >
+        <div v-for="(comic, index) in comics" :key="index" class="comic">
           <div class="comic-img">
             <img
-              :src="`${comic.thumbnail.path}/portrait_xlarge.${comic.thumbnail.extension}`"
+              :src="`${comic.thumbnail.path}/portrait_uncanny.${comic.thumbnail.extension}`"
               alt=""
             />
             <p class="review">
@@ -23,10 +45,10 @@
               {{ comic.title.slice(0, 25) }}
               <span v-if="comic.title.length > 25">...</span>
             </p>
-            <NuxtLink
+            <a
               class="button button-light"
-              :to="{ name: 'comic-comicid', params: { comicid: comic.id } }"
-              >Get More Info</NuxtLink
+              :href="'https://www.google.com/search?q=' + comic.title"
+              >Get More Info</a
             >
           </div>
         </div>
@@ -37,29 +59,50 @@
 
 <script>
 import md5 from 'blueimp-md5'
+import PagePagination from '~/components/PagePagination.vue'
 export default {
+  components: {
+    PagePagination,
+  },
   data() {
     return {
       comics: [],
+      search: '',
+      currentPage: 1,
+      loading: false,
     }
   },
   async fetch() {
-    await this.getComics()
+    await this.getComics(20, 0)
   },
   methods: {
-    async getComics() {
+    async getComics(limit, offset) {
+      this.loading = true
       const ts = Date.now()
       const hash = md5(
         ts +
           '5a58e83a879dd3811909b196e9e6cb1b37e1fd72' +
           'e87a19e72566520830fdabc1aa0bd4d7'
       )
-      await this.$axios
-        .get(
-          `v1/public/comics?ts=${ts}&apikey=e87a19e72566520830fdabc1aa0bd4d7&hash=${hash}`
-        )
-        .then((res) => (this.comics = res.data.data.results))
-      console.log(this.comics)
+      const url = this.search
+        ? `v1/public/comics?title=${this.search}&limit=${limit}}&offset=${offset}&ts=${ts}&apikey=e87a19e72566520830fdabc1aa0bd4d7&hash=${hash}`
+        : `v1/public/comics?dateDescriptor=thisMonth&limit=${limit}}&offset=${offset}&ts=${ts}&apikey=e87a19e72566520830fdabc1aa0bd4d7&hash=${hash}`
+      await this.$axios.get(url).then((res) => {
+        if (res.data.data.results.length == 0) {
+          console.log('data kosong')
+        } else {
+          this.comics = res.data.data.results
+        }
+      })
+      this.loading = false
+    },
+    async cari() {
+      this.currentPage = 1
+      await this.getComics(20, 0)
+    },
+    onPageChange(page) {
+      this.getComics(20, page * 20)
+      this.currentPage = page
     },
   },
   // created() {
@@ -70,27 +113,35 @@ export default {
 
 <style lang="scss">
 .home {
-  .loading {
-    padding-top: 120px;
-    align-items: flex-start;
-  }
-  .search {
+  .formSearch {
     display: flex;
+    margin-left: 3.5em;
     padding: 32px 16px;
-    input {
-      max-width: 350px;
-      width: 100%;
-      padding: 12px 6px;
-      font-size: 14px;
-      border: none;
-      &:focus {
-        outline: none;
+    justify-content: space-between;
+    .col {
+      display: flex;
+      width: 35%;
+      input {
+        width: 100%;
+        margin: 0px 5px;
+        padding: 12px 6px;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+        &:focus {
+          outline: none;
+        }
+      }
+
+      .button {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
       }
     }
-    .button {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
+  }
+  .loading {
+    display: flex;
+    justify-content: center;
   }
   .comics {
     padding: 32px 16px;
@@ -103,7 +154,7 @@ export default {
         grid-template-columns: repeat(2, 1fr);
       }
       @media (min-width: 750px) {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
       @media (min-width: 1100px) {
         grid-template-columns: repeat(4, 1fr);
